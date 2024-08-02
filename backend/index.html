@@ -1,20 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feature and Label Selector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Features and Labels</title>
 </head>
 <body>
-  <div>
-    <h2>Features</h2>
-    <div id="feature-buttons"></div>
-  </div>
-  <div>
-    <h2>Labels</h2>
-    <div id="label-buttons"></div>
-  </div>
+    <h1>Select Features and Labels</h1>
+    <form id="dataForm">
+        <h2>Features</h2>
+        <div id="featuresContainer">
+            <!-- Dynamic options will be inserted here -->
+        </div>
+        <h2>Labels</h2>
+        <div id="labelsContainer">
+            <!-- Dynamic options will be inserted here -->
+        </div>
+        <button type="submit">Submit</button>
+    </form>
 
-  <script type="module" src="script.js"></script>
+    <script>
+        // Example list of elements
+        const elements = ['Element 1', 'Element 2', 'Element 3', 'Element 4'];
+
+        function populateOptions() {
+            console.log('Populating options...');
+            const featuresContainer = document.getElementById('featuresContainer');
+            const labelsContainer = document.getElementById('labelsContainer');
+
+            elements.forEach((element, index) => {
+                featuresContainer.innerHTML += `
+                    <input type="checkbox" name="features" value="${element}" id="feature-${index}">
+                    <label for="feature-${index}">${element}</label><br>
+                `;
+
+                labelsContainer.innerHTML += `
+                    <input type="checkbox" name="labels" value="${element}" id="label-${index}">
+                    <label for="label-${index}">${element}</label><br>
+                `;
+            });
+        }
+
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const features = formData.getAll('features');
+            const labels = formData.getAll('labels');
+
+            console.log('Features:', features);
+            console.log('Labels:', labels);
+
+            fetch('http://localhost:3000/submit-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ features, labels })
+            }).then(response => response.json())
+              .then(data => {
+                  showAlert('Success', 'Data submitted successfully!');
+              })
+              .catch(error => {
+                  showAlert('Error', 'Error submitting data.');
+                  console.log('Error:', error);
+              });
+        });
+
+        function showAlert(title, message) {
+            alert(`${title}: ${message}`);
+        }
+
+        populateOptions();
+    </script>
 </body>
 </html>
